@@ -11,7 +11,7 @@
 #
 # Happy Coding!
 
-service: simple-nodejs-serverless # NOTE: update this with your service name
+service: hds-simple-nodejs-serverless # NOTE: update this with your service name
 
 # You can pin your service to only deploy with a specific Serverless version
 # Check out our docs for more details
@@ -20,8 +20,11 @@ service: simple-nodejs-serverless # NOTE: update this with your service name
 provider:
   name: aws
   runtime: nodejs8.10
+  role: arn:aws:iam::560395879688:role/Hds-Lambda
+# cfnRole: arn:aws:iam::560395879688:role/Hds-Developer
+  stackName: hds-${self:provider.stage}-${self:service}
   deploymentBucket: 
-    name: prod8ctive.analytics-serverless-deployments
+    name: hds-chc-dev-medicaltransactions
     tags:
       Owner: LDC
       Zone: us-east-1
@@ -36,7 +39,7 @@ provider:
     - Effect: "Allow"
       Action:
         - "s3:ListBucket"
-      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", "prod8ctive.analytics-serverless-deployments" ] ]  }
+      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", "hds-chc-dev-medicaltransactions" ] ]  }
     - Effect: "Allow"
       Action:
         - "s3:PutObject"
@@ -44,7 +47,7 @@ provider:
         Fn::Join:
           - ""
           - - "arn:aws:s3:::"
-            - "prod8ctive.analytics-serverless-deployments"
+            - "hds-chc-dev-medicaltransactions"
             - "/*"
 
 # you can define service wide environment variables here
@@ -70,7 +73,7 @@ functions:
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
-#    events:
+    events:
 #      - http:
 #          path: users/create
 #          method: get
@@ -78,7 +81,16 @@ functions:
 #      - s3: ${env:BUCKET}
 #      - schedule: rate(10 minutes)
 #      - sns: greeter-topic
-#      - stream: arn:aws:dynamodb:region:XXXXXX:table/foo/stream/1970-01-01T00:00:00.000
+       - stream:
+            batchSize: 1
+            arn:
+              arn:aws:dynamodb:us-east-1:560395879688:table/hds_payer/stream/2019-04-29T04:13:51.403
+#       - stream:
+#           type: dynamodb
+#           batchSize: 1
+#           startingPosition: LATEST
+#           arn:
+#             Fn::GetAtt: [ "hds_payer", StreamArn ]
 #      - alexaSkill: amzn1.ask.skill.xx-xx-xx-xx
 #      - alexaSmartHome: amzn1.ask.skill.xx-xx-xx-xx
 #      - iot:
