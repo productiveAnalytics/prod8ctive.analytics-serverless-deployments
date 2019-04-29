@@ -20,30 +20,36 @@ service: simple-nodejs-serverless # NOTE: update this with your service name
 provider:
   name: aws
   runtime: nodejs8.10
+  deploymentBucket: 
+    name: prod8ctive.analytics-serverless-deployments
+    tags:
+      Owner: LDC
+      Zone: us-east-1
+      Usage: DevOps
 
 # you can overwrite defaults here
-#  stage: dev
-#  region: us-east-1
+  stage: ${opt:stage, 'dev'} 
+  region: ${opt:retion, 'us-east-1'}
 
 # you can add statements to the Lambda function's IAM Role here
-#  iamRoleStatements:
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:ListBucket"
-#      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:PutObject"
-#      Resource:
-#        Fn::Join:
-#          - ""
-#          - - "arn:aws:s3:::"
-#            - "Ref" : "ServerlessDeploymentBucket"
-#            - "/*"
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "s3:ListBucket"
+      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", "prod8ctive.analytics-serverless-deployments" ] ]  }
+    - Effect: "Allow"
+      Action:
+        - "s3:PutObject"
+      Resource:
+        Fn::Join:
+          - ""
+          - - "arn:aws:s3:::"
+            - "prod8ctive.analytics-serverless-deployments"
+            - "/*"
 
 # you can define service wide environment variables here
-#  environment:
-#    variable1: value1
+  environment:
+    DEBUG: true
 
 # you can add packaging information here
 #package:
@@ -57,7 +63,10 @@ provider:
 functions:
   hello:
     handler: handler.hello
-
+    tags:
+      Owner: LDC
+      Zone: us-east-1
+      
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
